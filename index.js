@@ -6,20 +6,31 @@ function generateToCLinks(sections) {
     return links;
 }
 
+function renderBadge(license) {
+    if (license === 'MIT') {
+        return '[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)'
+    }
+    if (license === 'Apache') {
+        return '[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)'
+    }
+    if (license === 'None') {
+        return
+    }
+} 
 
 // Functions need to go outside the } but inside the )
-const generateREADME = ({ ProjectName, Description, ToC, Installation, Usage, License, Contributing, Tests, Questions }) =>
-`# ${ProjectName}
+const generateREADME = ({ ProjectName, Description, ToC, Installation, Usage, License, Contributing, Tests, Questions, Email }) =>
+`
+${renderBadge(License)}
+# ${ProjectName} 
 
 ${Description}
 
 ## Table of Contents
-${ToC}
 
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+${ToC.map(section => {
+    return `- [${section}](#${section.toLowerCase()})`
+}).join("\n")}
 
 ## Installation
 
@@ -43,7 +54,10 @@ ${Tests}
 
 ## Questions
 
-${Questions}
+if you have querstions please reach out to me here:
+Github Username: ${Questions}
+Email: ${Email}
+
 `;
 
 
@@ -70,9 +84,14 @@ inquirer.prompt([
         message: 'Provide instructions for use.'
     },
     {
-        type: 'input',
+        type: 'list',
         name: 'License',
-        message: 'What license was used?'
+        message: 'What license was used?',
+        choices: [
+            'MIT',
+            'Apache',
+            'None'
+        ]
     },
     {
         type: 'input',
@@ -89,6 +108,11 @@ inquirer.prompt([
         name: 'Questions',
         message: 'Please enter your github username here:'
     },   
+    {
+        type: 'input',
+        name: 'Email',
+        message: 'Please enter your Email here:'
+    },
     {
         type: 'checkbox',
         name: 'ToC', 
@@ -117,16 +141,8 @@ inquirer.prompt([
 ])
 .then((data) => {
     const READMEPageContent = generateREADME(data);
-    const selectedSections = data.ToC;
-    const tocLinks = generateToCLinks(selectedSections);
-
-    const READMEContent = `# Table of Contents\n\n${tocLinks}`
-    
+   
     fs.writeFile('README.md', READMEPageContent, (err) =>
     err ? console.log(err) : console.log('README Created')
     );
-
-    fs.appendFile('README.md', READMEContent,  (err) =>
-    err ? console.log(err) : console.log('Data Appended to File'))
-
 }); 
