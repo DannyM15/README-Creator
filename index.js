@@ -1,11 +1,7 @@
 const inquirer = require('inquirer')
 const fs = require('fs')
 
-function generateToCLinks(sections) {
-    const links = sections.map(section => `- [${section}](#${section.toLowerCase()})`).join('\n');
-    return links;
-}
-
+// Function to pull the license badge associated with the license name.
 function renderBadge(license) {
     if (license === 'MIT') {
         return '[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)'
@@ -19,6 +15,7 @@ function renderBadge(license) {
 } 
 
 // Functions need to go outside the } but inside the )
+// function to generatre the README with description and code placing the entered data
 const generateREADME = ({ ProjectName, Description, ToC, Installation, Usage, License, Contributing, Tests, Questions, Email }) =>
 `
 ${renderBadge(License)}
@@ -60,7 +57,7 @@ Email: ${Email}
 
 `;
 
-
+// Prompts to ask the questions regarding each section of the README. This data will be placed in each section of the README that is generated.
 inquirer.prompt([
     {
         type: 'input',
@@ -113,6 +110,7 @@ inquirer.prompt([
         name: 'Email',
         message: 'Please enter your Email here:'
     },
+    // Checkbox for the user to select which sections they would like to include in their Table of Contents.
     {
         type: 'checkbox',
         name: 'ToC', 
@@ -139,9 +137,10 @@ inquirer.prompt([
         ]
     },
 ])
+// Then statement with the data to generate the readme from the data above.
 .then((data) => {
     const READMEPageContent = generateREADME(data);
-   
+   // FS to write the README.md with the data from READMEPageContent function.
     fs.writeFile('README.md', READMEPageContent, (err) =>
     err ? console.log(err) : console.log('README Created')
     );
